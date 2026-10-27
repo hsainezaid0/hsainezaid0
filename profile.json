@@ -15,5 +15,61 @@
     "SQL",
     "Git",
     "Linux"
+  ],
+  "featured_projects": [
+    {
+      "name": "My-Portfolio",
+      "label": "Personal Portfolio",
+      "tags": [
+        "html",
+        "css",
+        "javascript"
+      ]
+    },
+    {
+      "name": "BootCamp-Web",
+      "label": "Web Bootcamp",
+      "tags": [
+        "html / css",
+        "javascript",
+        "php / ajax"
+      ]
+    },
+    {
+      "name": "epitechDay7",
+      "label": "Python Hangman",
+      "tags": [
+        "python",
+        "terminal",
+        "game"
+      ]
+    },
+    {
+      "name": "CV---RESUME",
+      "label": "Web Résumé",
+      "tags": [
+        "html / css",
+        "javascript",
+        "print layout"
+      ]
+    },
+    {
+      "name": "Epitech",
+      "label": "Python & Linux Foundations",
+      "tags": [
+        "python",
+        "linux",
+        "bootcamp"
+      ]
+    },
+    {
+      "name": "epitechDay10",
+      "label": "Python Practice",
+      "tags": [
+        "python",
+        "file handling",
+        "text analysis"
+      ]
+    }
   ]
 }
