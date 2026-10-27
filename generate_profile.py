@@ -10,6 +10,7 @@ import math
 import os
 from pathlib import Path
 import re
+import textwrap
 import urllib.error
 import urllib.request
 
@@ -22,7 +23,8 @@ query Profile($login:String!, $cursor:String) {
     repositories(first:100, after:$cursor, privacy:PUBLIC, ownerAffiliations:[OWNER]) {
       totalCount
       nodes {
-        name isFork stargazerCount
+        name isFork stargazerCount description url pushedAt homepageUrl
+        forks { totalCount }
         languages(first:100, orderBy:{field:SIZE, direction:DESC}) {
           edges { size node { name color } }
           pageInfo { hasNextPage }
@@ -83,6 +85,22 @@ def fetch_public_data(login, token):
             sizes[name] += edge["size"]
             colors[name] = edge["node"]["color"] or CYAN
     days = [d for w in calendar["weeks"] for d in w["contributionDays"]]
+    projects = []
+    for repo in repositories:
+        if repo["isFork"] or repo["name"].lower() == login.lower():
+            continue
+        edges = repo["languages"]["edges"]
+        byte_count = sum(edge["size"] for edge in edges)
+        primary = edges[0] if edges else None
+        projects.append({
+            "name": repo["name"], "description": repo.get("description") or "",
+            "url": repo["url"], "updated_at": repo.get("pushedAt") or "",
+            "website": repo.get("homepageUrl") or "", "stars": repo["stargazerCount"],
+            "forks": repo["forks"]["totalCount"],
+            "language": primary["node"]["name"] if primary else None,
+            "primary_share": 100*primary["size"]/byte_count if primary and byte_count else None,
+            "language_shares": [{"name": e["node"]["name"], "percent": 100*e["size"]/byte_count} for e in edges] if byte_count else [],
+        })
     return {
         "login": login,
         "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -92,6 +110,7 @@ def fetch_public_data(login, token):
         "days": days,
         "languages": [{"name": n, "size": s, "color": colors[n]} for n, s in sizes.most_common()],
         "language_sync_pending": False,
+        "projects": projects,
     }
 
 
@@ -124,10 +143,11 @@ def svg(w, h, title, body):
 
 
 def panel(w, h, title, file):
-    return (rect(1, 1, w-2, h-2, "url(#panel)", 20, "#2d465d")
+    return (rect(1, 1, w-2, h-2, "url(#panel)", 20, "url(#accent)", 'stroke-opacity=".43"')
             + rect(1, 1, w-2, 47, "#101c2a", 20)
+            + rect(2, 49, w-4, h-51, "url(#dots)", 18, extra='opacity=".13"')
             + ''.join(f'<circle cx="{25+i*17}" cy="25" r="4" fill="{c}"/>' for i, c in enumerate(["#ff6b89", "#ffcf67", MINT]))
-            + t(88, 30, title, 13, MUTED, mono=True)
+            + t(88, 30, title, 13, MINT, 600, mono=True)
             + t(w-26, 30, file, 11, "#617c95", mono=True, extra='text-anchor="end"'))
 
 
@@ -171,7 +191,7 @@ def metrics(data):
     days = data["days"]
     active = sum(d["contributionCount"] > 0 for d in days)
     peak = max((d["contributionCount"] for d in days), default=0)
-    b = panel(588, 340, "GITHUB / ACTIVITY", "stats.live")
+    b = panel(588, 340, "GITHUB / ACTIVITY", "stats.snapshot")
     values = [(data["public_repositories"], "PUBLIC REPOSITORIES", MINT),
               (data["total_contributions"], "CONTRIBUTIONS / 12 MONTHS", CYAN),
               (active, "ACTIVE DAYS / 12 MONTHS", VIOLET),
@@ -310,6 +330,150 @@ def toolkit(config):
     return svg(1200, 132, "Learning toolkit: " + ", ".join(config["toolkit"]), b)
 
 
+def about(config):
+    school, _, exchange = config["education"].partition(" · ")
+    interests = config["focus"].split(" · ")
+    b = panel(1200, 190, "ABOUT.ME", "whoami --details")
+    b += t(30, 82, "$ whoami", 14, MINT, mono=True)
+    b += t(30, 114, config["role"] + " · " + school, 22, TEXT, 700)
+    b += t(30, 146, exchange or config["education"], 17, TEXT)
+    b += t(30, 173, "Learning through Python, web projects and Linux.", 13, MUTED)
+    b += rect(740, 72, 1, 96, "#284b60")
+    b += t(781, 87, "CURRENT INTERESTS", 11, MUTED, mono=True)
+    b += t(781, 121, interests[0].upper(), 18, MINT, 700, True)
+    if len(interests) > 1:
+        b += t(781, 153, interests[1].upper(), 16, VIOLET, 700, True)
+    return svg(1200, 190, config["name"] + " — education and interests", b)
+
+
+def link_button(label, detail, color):
+    b = rect(1, 1, 586, 68, "url(#panel)", 14, color, 'stroke-opacity=".42"')
+    b += t(25, 30, label, 15, color, 700, True)
+    b += t(25, 51, detail, 11, MUTED, mono=True)
+    b += t(554, 45, "↗", 28, color, extra='text-anchor="end"')
+    return svg(588, 70, label + " — " + detail, b)
+
+
+def projects_header(count):
+    b = panel(1200, 94, "PROJECTS.LIST", "./projects.sh --all")
+    b += t(28, 78, "A few things I've been building", 20, TEXT, 700)
+    b += t(1170, 76, str(count) + " FEATURED REPOSITORIES", 11, MINT, mono=True, extra='text-anchor="end"')
+    return svg(1200, 94, "Featured GitHub projects", b)
+
+
+def project_card(project, settings, index):
+    language = project.get("language") or "CODE"
+    color = {"HTML": "#ffb26b", "CSS": VIOLET, "Python": CYAN}.get(language, MINT)
+    b = panel(588, 286, f"PROJECT // {index:02d}", "public.repo")
+    b += f'<circle cx="33" cy="78" r="4" fill="{color}"/>'
+    b += t(47, 86, settings["label"], 22, TEXT, 700)
+    b += t(28, 112, project["name"], 11, MUTED, mono=True)
+    lines = textwrap.wrap(project.get("description") or "Explore this repository on GitHub.", width=49)
+    if len(lines) > 3:
+        lines = lines[:3]
+        lines[-1] = lines[-1].rstrip(" .") + "…"
+    for row, line in enumerate(lines):
+        b += t(28, 143+row*20, line, 15, MUTED)
+    x = 28
+    for label in settings.get("tags", [])[:3]:
+        p, width = pill(x, 205, label, color, 11)
+        if x+width > 448:
+            break
+        b += p
+        x += width+9
+    # This ring measures the primary language's byte share, never project completion.
+    share = project.get("primary_share")
+    b += '<circle cx="512" cy="129" r="37" fill="none" stroke="#193447" stroke-width="6"/>'
+    if share is not None:
+        share = max(0, min(100, float(share)))
+        circumference = 2*math.pi*37
+        b += f'<circle cx="512" cy="129" r="37" fill="none" stroke="{color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="{circumference*share/100:.2f} {circumference:.2f}" transform="rotate(-90 512 129)"/>'
+        b += t(512, 135, f"{share:g}%", 18, TEXT, 700, True, 'text-anchor="middle"')
+        b += t(512, 188, language.upper() + " SHARE", 9, color, mono=True, extra='text-anchor="middle"')
+    else:
+        b += t(512, 135, language[:4].upper(), 17, color, 700, True, 'text-anchor="middle"')
+        b += t(512, 188, "PRIMARY LANGUAGE", 9, MUTED, mono=True, extra='text-anchor="middle"')
+    b += rect(28, 246, 532, 1, "#213f52")
+    b += t(28, 269, f"☆ {project.get('stars', 0)} STARS  ·  PUBLIC", 10, MUTED, mono=True)
+    updated = project.get("updated_at", "")[:10]
+    b += t(560, 269, "UPDATED " + (updated or "—"), 10, MUTED, mono=True, extra='text-anchor="end"')
+    return svg(588, 286, settings["label"] + " — " + project.get("description", ""), b)
+
+
+def heatmap(data):
+    days = sorted(data["days"], key=lambda d: d["date"])
+    total = data["total_contributions"]
+    active = sum(d["contributionCount"] > 0 for d in days)
+    peak = max((d["contributionCount"] for d in days), default=0)
+    b = panel(1200, 326, "CONTRIBUTIONS.CALENDAR", "activity.heatmap")
+    b += t(30, 85, f"{total:,} contributions in the last year", 25, TEXT, 700)
+    b += t(1170, 83, "SNAPSHOT " + data["updated_at"][:10], 10, MUTED, mono=True, extra='text-anchor="end"')
+    colors = ["#152a38", "#115341", "#17865f", "#28ba82", MINT]
+    if days:
+        first = date.fromisoformat(days[0]["date"])
+        origin = first - timedelta(days=(first.weekday()+1)%7)
+        last = date.fromisoformat(days[-1]["date"])
+        weeks = (last-origin).days//7 + 1
+        step = min(18, 972/max(1, weeks))
+        for week in range(weeks):
+            day = origin+timedelta(days=week*7)
+            if day.day <= 7:
+                b += t(145+week*step, 112, day.strftime("%b"), 11, MUTED, mono=True)
+        for weekday, label in [(1, "Mon"), (3, "Wed"), (5, "Fri")]:
+            b += t(107, 140+weekday*18, label, 10, MUTED, mono=True, extra='text-anchor="end"')
+        for day in days:
+            when = date.fromisoformat(day["date"])
+            week, weekday = divmod((when-origin).days, 7)
+            count = day["contributionCount"]
+            level = 0 if count == 0 else min(4, max(1, math.ceil(count/max(1, peak)*4)))
+            b += f'<g><title>{when.isoformat()}: {count} contributions</title>'
+            b += rect(145+week*step, 127+weekday*18, 13, 13, colors[level], 2)
+            b += '</g>'
+    b += t(30, 296, f"{active} ACTIVE DAYS   ·   BEST DAY: {peak}", 11, MINT, mono=True)
+    b += t(938, 296, "LESS", 10, MUTED, mono=True, extra='text-anchor="end"')
+    for i, color in enumerate(colors):
+        b += rect(950+i*21, 284, 14, 14, color, 2)
+    b += t(1066, 296, "MORE", 10, MUTED, mono=True)
+    return svg(1200, 326, "Contribution calendar built from real GitHub contribution dates and counts", b)
+
+
+def footer(config, data):
+    b = rect(1, 1, 1198, 62, "url(#panel)", 14, "url(#accent)", 'stroke-opacity=".35"')
+    b += t(26, 27, config["name"].upper() + "  /  BUILD. LEARN. REPEAT.", 12, MINT, 600, True)
+    b += t(26, 47, "Stats are a saved snapshot · Rings show language share · Animations are decorative", 11, MUTED)
+    b += t(1170, 36, "SOURCE + NOTES ↗", 12, CYAN, 600, True, 'text-anchor="end"')
+    return svg(1200, 64, "Profile data and maintenance notes", b)
+
+
+def readme(config, data):
+    def img(name, alt, width="100%", link=None):
+        element = f'<img src="{escape(name)}" width="{width}" alt="{escape(alt)}" />'
+        return f'<a href="{escape(link)}">{element}</a>' if link else element
+
+    login = config["login"]
+    sections = [
+        '<!-- Generated by generate_profile.py. Edit profile.json and see SETUP.md for updates. -->',
+        img("banner.svg", config["name"] + " — Computer Engineering student", link=config["website"]),
+        img("about.svg", config["education"] + ". Interests: " + config["focus"]),
+        '<p>\n' + img("portfolio-link.svg", "Open my personal portfolio", "49%", config["website"]) + '\n' + img("repositories-link.svg", "Explore my GitHub repositories", "49%", f"https://github.com/{login}?tab=repositories") + '\n</p>',
+        '<p>\n' + img("metrics.svg", "GitHub repositories and contribution statistics", "49%") + '\n' + img("languages.svg", "Language stack across my public repositories", "49%") + '\n</p>',
+        img("projects-header.svg", "Featured projects"),
+    ]
+    available = {project["name"] for project in data.get("projects", [])}
+    featured = [project for project in config.get("featured_projects", []) if project["name"] in available]
+    for i in range(0, len(featured), 2):
+        cards = [img("project-" + project["name"].lower() + ".svg", "Open " + project["label"] + " on GitHub", "49%", f"https://github.com/{login}/{project['name']}") for project in featured[i:i+2]]
+        sections.append('<p>\n' + '\n'.join(cards) + '\n</p>')
+    sections.extend([
+        img("heatmap.svg", "Contribution heatmap with real daily GitHub contributions"),
+        img("city.svg", "A three-dimensional city built from my contribution calendar"),
+        '<p>\n' + img("arcade.svg", "Decorative space shooter animation", "49%") + '\n' + img("chess.svg", "Decorative chessboard animation", "49%") + '\n</p>',
+        img("toolkit.svg", "Python, C, JavaScript, PHP, HTML, CSS, SQL, Git and Linux"),
+        img("footer.svg", "Snapshot date, data definitions and maintenance notes", link="SETUP.md"),
+    ])
+    return '\n\n'.join(sections) + '\n'
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--offline", action="store_true", help="Regenerate using the saved public snapshot")
@@ -329,7 +493,18 @@ def main():
         "banner.svg": banner(config), "metrics.svg": metrics(data),
         "languages.svg": language_stack(data), "city.svg": city(data),
         "arcade.svg": arcade(data), "chess.svg": chess(), "toolkit.svg": toolkit(config),
+        "about.svg": about(config), "heatmap.svg": heatmap(data),
+        "portfolio-link.svg": link_button("OPEN PORTFOLIO", config["website"].split("//")[-1].rstrip("/"), MINT),
+        "repositories-link.svg": link_button("EXPLORE REPOSITORIES", "github.com/" + config["login"], CYAN),
+        "footer.svg": footer(config, data),
+        "README.md": readme(config, data),
     }
+    available = {project["name"]: project for project in data.get("projects", [])}
+    featured = [project for project in config.get("featured_projects", []) if project["name"] in available]
+    outputs["projects-header.svg"] = projects_header(len(featured))
+    for index, settings in enumerate(featured, 1):
+        filename = "project-" + settings["name"].lower() + ".svg"
+        outputs[filename] = project_card(available[settings["name"]], settings, index)
     # Build all outputs first. API failures leave the last successful visuals intact.
     ASSETS.mkdir(exist_ok=True)
     for name, content in outputs.items():
@@ -337,7 +512,8 @@ def main():
     if not args.offline:
         snapshot_path.parent.mkdir(exist_ok=True)
         snapshot_path.write_text(json.dumps(data, indent=2)+"\n")
-    print(f"Built {len(outputs)} SVGs for @{config['login']}; snapshot {data['updated_at']}")
+    svg_count = sum(name.endswith(".svg") for name in outputs)
+    print(f"Built {svg_count} SVGs and README for @{config['login']}; snapshot {data['updated_at']}")
 
 
 if __name__ == "__main__":
