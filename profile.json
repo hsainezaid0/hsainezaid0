@@ -1,0 +1,19 @@
+{
+  "login": "hsainezaid0",
+  "name": "Zaid Hsaine",
+  "role": "Computer Engineering student",
+  "education": "EMSI · Academic exchange at EPITECH Paris",
+  "focus": "Cybersecurity · Artificial Intelligence",
+  "website": "https://zaidhsaine.com/",
+  "toolkit": [
+    "Python",
+    "C",
+    "JavaScript",
+    "PHP",
+    "HTML",
+    "CSS",
+    "SQL",
+    "Git",
+    "Linux"
+  ]
+}
