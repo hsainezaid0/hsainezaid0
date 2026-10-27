@@ -1,9 +1,9 @@
 {
   "login": "hsainezaid0",
-  "updated_at": "2026-10-27T09:51:19Z",
+  "updated_at": "2026-10-27T10:21:05Z",
   "source": "GitHub profile contribution calendar and public repository search observed on 2026-10-27",
   "public_repositories": 10,
-  "total_contributions": 102,
+  "total_contributions": 103,
   "days": [
     {
       "contributionCount": 0,
@@ -1836,7 +1836,7 @@
       "weekday": 1
     },
     {
-      "contributionCount": 3,
+      "contributionCount": 4,
       "date": "2026-10-27",
       "weekday": 2
     }
@@ -1914,6 +1914,148 @@
       "private": false,
       "fork": false,
       "language": "HTML"
+    }
+  ],
+  "projects": [
+    {
+      "name": "My-Portfolio",
+      "description": "Personal portfolio built with HTML, CSS and JavaScript: projects, skills and contact pages.",
+      "language": "HTML",
+      "stars": 0,
+      "forks": 0,
+      "updated_at": "2026-10-21T12:08:28Z",
+      "website": "https://zaidhsaine.com/",
+      "url": "https://github.com/hsainezaid0/My-Portfolio",
+      "language_shares": [
+        {
+          "name": "HTML",
+          "percent": 50.1
+        },
+        {
+          "name": "CSS",
+          "percent": 43.9
+        },
+        {
+          "name": "JavaScript",
+          "percent": 6
+        }
+      ],
+      "primary_share": 50.1,
+      "language_source": "Language percentages displayed in the public GitHub repository sidebar."
+    },
+    {
+      "name": "BootCamp-Web",
+      "description": "EPITECH web bootcamp exercises covering HTML, CSS, JavaScript, PHP, AJAX and Linux shell scripting.",
+      "language": "HTML",
+      "stars": 0,
+      "forks": 0,
+      "updated_at": "2026-10-22T13:06:50Z",
+      "website": "",
+      "url": "https://github.com/hsainezaid0/BootCamp-Web",
+      "language_shares": [
+        {
+          "name": "HTML",
+          "percent": 65.7
+        },
+        {
+          "name": "JavaScript",
+          "percent": 15.4
+        },
+        {
+          "name": "PHP",
+          "percent": 12.6
+        },
+        {
+          "name": "CSS",
+          "percent": 5.7
+        },
+        {
+          "name": "Shell",
+          "percent": 0.6
+        }
+      ],
+      "primary_share": 65.7,
+      "language_source": "Language percentages displayed in the public GitHub repository sidebar."
+    },
+    {
+      "name": "epitechDay7",
+      "description": "Terminal Hangman game in Python, with random words, letter guessing and a penalty system.",
+      "language": "Python",
+      "stars": 0,
+      "forks": 0,
+      "updated_at": "2026-09-29T14:12:01Z",
+      "website": "",
+      "url": "https://github.com/hsainezaid0/epitechDay7",
+      "language_shares": [
+        {
+          "name": "Python",
+          "percent": 100
+        }
+      ],
+      "primary_share": 100,
+      "language_source": "Public tracked code is Python only; primary language verified on GitHub."
+    },
+    {
+      "name": "CV---RESUME",
+      "description": "Web résumé built with HTML, CSS and JavaScript, with a print-friendly layout.",
+      "language": "CSS",
+      "stars": 0,
+      "forks": 0,
+      "updated_at": "2026-10-24T10:39:04Z",
+      "website": "",
+      "url": "https://github.com/hsainezaid0/CV---RESUME",
+      "language_shares": [
+        {
+          "name": "CSS",
+          "percent": 68.3
+        },
+        {
+          "name": "HTML",
+          "percent": 31.4
+        },
+        {
+          "name": "JavaScript",
+          "percent": 0.3
+        }
+      ],
+      "primary_share": 68.3,
+      "language_source": "Language percentages displayed in the public GitHub repository sidebar."
+    },
+    {
+      "name": "Epitech",
+      "description": "EPITECH foundations: Linux commands, Python programming, string processing and language detection.",
+      "language": "Python",
+      "stars": 0,
+      "forks": 0,
+      "updated_at": "2026-09-23T13:24:06Z",
+      "website": "",
+      "url": "https://github.com/hsainezaid0/Epitech",
+      "language_shares": [
+        {
+          "name": "Python",
+          "percent": 100
+        }
+      ],
+      "primary_share": 100,
+      "language_source": "Public tracked code is Python only; primary language verified on GitHub."
+    },
+    {
+      "name": "epitechDay10",
+      "description": "Python exercises on lambda functions, iterators, file handling, exceptions and text analysis.",
+      "language": "Python",
+      "stars": 0,
+      "forks": 0,
+      "updated_at": "2026-10-02T14:40:25Z",
+      "website": "",
+      "url": "https://github.com/hsainezaid0/epitechDay10",
+      "language_shares": [
+        {
+          "name": "Python",
+          "percent": 100
+        }
+      ],
+      "primary_share": 100,
+      "language_source": "Public tracked code is Python only; primary language verified on GitHub."
     }
   ]
 }
