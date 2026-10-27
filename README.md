@@ -14,7 +14,7 @@ I'm **Zaid**, a Computer Engineering student at **EMSI**, currently on an academ
   <img src="languages.svg" width="49%" alt="Programming languages in my public repositories" />
 </p>
 
-<img src="city.svg" width="100%" alt="A contribution city: each tile is a calendar day and each building's height represents that day's public GitHub contributions." />
+<img src="city.svg" width="100%" alt="A contribution city: each tile is a calendar day and each building's height represents that day's GitHub contributions." />
 
 <p>
   <img src="arcade.svg" width="49%" alt="Decorative space shooter animation powered by my contribution count" />
@@ -28,8 +28,8 @@ I'm **Zaid**, a Computer Engineering student at **EMSI**, currently on an academ
 
 The cards are SVG images rendered directly by GitHub. The arcade and chessboard are decorative animations. They are not playable games.
 
-The city uses real GitHub contribution dates and counts. The language card uses language bytes from public repositories, excluding forks and this profile repository. Percentages describe code distribution, not proficiency. Until the first live sync, the cards use a public snapshot from 27 October 2026; language percentages are explicitly marked as pending.
+The city uses real GitHub contribution dates and counts. The language card groups public, original repositories by their primary language, excluding this profile repository. Percentages describe repository distribution, not code volume or proficiency. The current snapshot was captured on 27 October 2026.
 
-After setup, a GitHub Actions workflow refreshes the data daily. See [SETUP.md](SETUP.md) for installation and customization.
+The cards are a saved snapshot. For manual updates and customization, see [SETUP.md](SETUP.md).
 
 </details>

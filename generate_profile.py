@@ -182,7 +182,7 @@ def metrics(data):
         b += t(x+18, y+49, f"{value:,}", 40, color, 700, True)
         b += t(x+18, y+78, label, 10, MUTED, mono=True)
     b += t(29, 318, "SNAPSHOT  " + data["updated_at"][:10] + "  /  GITHUB CALENDAR", 10, MUTED, mono=True)
-    return svg(588, 340, "Public GitHub activity statistics", b)
+    return svg(588, 340, "GitHub activity statistics", b)
 
 
 def language_stack(data):
@@ -201,7 +201,9 @@ def language_stack(data):
         b += t(30, 158, "Publish code to grow this stack.", 15, MUTED)
         b += t(30, 314, "FORKS AND PROFILE ASSETS EXCLUDED", 11, MUTED, mono=True)
     else:
-        b += t(30, 78, "Public code · share of language bytes", 12, MUTED)
+        by_repo = data.get("language_measure") == "repositories"
+        subtitle = "Primary language per public repository" if by_repo else "Public code · share of language bytes"
+        b += t(30, 78, subtitle, 12, MUTED)
         total = sum(l["size"] for l in langs)
         groups = langs[:4]
         if len(langs) > 4:
@@ -216,7 +218,8 @@ def language_stack(data):
             b += t(284, y, f"{100*ratio:.1f}%", 12, MUTED, mono=True, extra='text-anchor="end"')
             b += rect(301, y-11, 254, 10, "#183246", 5)
             b += rect(301, y-11, max(2, ratio*254), 10, lang["color"], 5)
-        b += t(30, 314, "FORKS AND PROFILE ASSETS EXCLUDED", 10, MUTED, mono=True)
+        note = "ORIGINAL REPOSITORIES · PROFILE EXCLUDED" if by_repo else "FORKS AND PROFILE ASSETS EXCLUDED"
+        b += t(30, 314, note, 10, MUTED, mono=True)
     return svg(588, 340, "Languages used in public repositories", b)
 
 
